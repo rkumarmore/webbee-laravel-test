@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EventsController extends BaseController
 {
@@ -180,6 +181,20 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 2');
+        $futureEvents = Event::with(['workshops'=> function ($query)
+        {
+            $now = Carbon::now()->format('Y-m-d H:i:s');
+            $query->where("start", '>=', $now);
+
+        }])->get()->toArray();
+
+        // $now = Carbon::now()->format('Y-m-d H:i:s');
+
+        // $futureEvents = Event::select("workshops.*","events.id as eventId","workshops.id as workshopId")
+        // ->join("workshops","events.id","=","workshops.event_id")
+        // ->where("workshops.start", '>=', $now)
+        // ->get();
+
+        return $futureEvents;
     }
 }
