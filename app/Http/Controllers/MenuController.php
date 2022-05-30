@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Routing\Controller as BaseController;
 
 class MenuController extends BaseController
@@ -95,6 +96,24 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+
+        $menuItems = MenuItem::all();
+
+        $items_by_id = collect();
+
+        foreach ($menuItems as $item) {
+            $items_by_id->put($item->id, $item);
+        }
+
+        foreach ($menuItems as $key => $item) {
+            $items_by_id->get($item->id)->children = new Collection;
+            if ($item->parent_id != 0) {
+                $items_by_id->get($item->parent_id)->children->push($item);
+                unset($menuItems[$key]);
+            }
+        }
+
+        return $menuItems;
+
     }
 }
