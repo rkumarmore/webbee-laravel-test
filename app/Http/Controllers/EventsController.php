@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Workshop;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -181,19 +182,15 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
-        $futureEvents = Event::with(['workshops'=> function ($query)
+
+        $futureEvents = Event::with(['workshops'])->withCount(['workshops'=> function ($query)
         {
             $now = Carbon::now()->format('Y-m-d H:i:s');
             $query->where("start", '>=', $now);
 
-        }])->get()->toArray();
+        }])->having('workshops_count', '>', 0)
+        ->get()->toArray();
 
-        // $now = Carbon::now()->format('Y-m-d H:i:s');
-
-        // $futureEvents = Event::select("workshops.*","events.id as eventId","workshops.id as workshopId")
-        // ->join("workshops","events.id","=","workshops.event_id")
-        // ->where("workshops.start", '>=', $now)
-        // ->get();
 
         return $futureEvents;
     }
